@@ -93,6 +93,7 @@ function CustomerForm({ customer, isEdit }) {
     setUploading(true)
     const formData = new FormData()
     formData.append('image', imageFile)
+    formData.append('type', 'customer')
 
     try {
       const response = await client.post('/api/upload', formData, {

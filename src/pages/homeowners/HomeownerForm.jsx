@@ -78,6 +78,7 @@ function HomeownerForm() {
     setUploading(true)
     const formData = new FormData()
     formData.append('image', imageFile)
+    formData.append('type', 'homeowner')
 
     try {
       const response = await client.post('/api/upload', formData, {
