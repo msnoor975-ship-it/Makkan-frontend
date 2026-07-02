@@ -67,6 +67,21 @@ function HomeownerForm() {
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      const maxSize = 5 * 1024 * 1024
+
+      if (!allowedTypes.includes(file.type)) {
+        alert('Only JPEG, JPG, PNG, GIF, and WEBP files are allowed')
+        e.target.value = ''
+        return
+      }
+
+      if (file.size > maxSize) {
+        alert('File size must be less than 5MB')
+        e.target.value = ''
+        return
+      }
+
       setImageFile(file)
       setImagePreview(URL.createObjectURL(file))
     }
