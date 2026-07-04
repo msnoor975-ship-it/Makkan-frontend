@@ -13,7 +13,7 @@ primary_region = 'ams'
   VITE_API_URL = 'https://makkan-backend.onrender.com'
 
 [http_service]
-  internal_port = 8080
+  internal_port = 80
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true
@@ -26,8 +26,6 @@ primary_region = 'ams'
     grace_period = '5s'
     method = 'GET'
     path = '/'
-    protocol = 'tcp'
-    port = 80
 
 [[vm]]
   cpu_kind = 'shared'
