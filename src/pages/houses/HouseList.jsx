@@ -5,6 +5,7 @@ import client from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import ErrorMessage from '../../components/ErrorMessage'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function HouseList() {
   const [statusFilter, setStatusFilter] = useState('')
@@ -42,7 +43,7 @@ function HouseList() {
   }
 
   if (isLoading) {
-    return <LoadingSpinner message="Loading houses..." />
+    return <LoadingSpinner message="Loading houses..." type="house" />
   }
 
   if (error) {
@@ -97,13 +98,13 @@ function HouseList() {
                 className="w-full h-48 object-cover rounded-lg mb-4"
                 onError={(e) => {
                   e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
                 }}
               />
-            ) : (
-              <div className="w-full h-48 bg-primary-500 rounded-lg mb-4 flex items-center justify-center text-white font-semibold">
-                No Image
-              </div>
-            )}
+            ) : null}
+            <div className="w-full h-48 rounded-lg mb-4" style={{ display: house.imageUrl ? 'none' : 'flex' }}>
+              <ImagePlaceholder type="house" size="large" />
+            </div>
             <h3 className="text-ink font-heading font-semibold text-lg mb-2">{house.address}</h3>
             <p className="text-primary-500 font-bold text-xl mb-4">SAR {Number(house.price).toLocaleString()}</p>
             <div className="flex gap-2 mb-4 flex-wrap">

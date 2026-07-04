@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin } from 'lucide-react'
+import ImagePlaceholder from './ImagePlaceholder'
 
 function PropertyCard({ property }) {
   const { id, address, price, listingType, specifications, imageUrl, status } = property
@@ -37,12 +38,15 @@ function PropertyCard({ property }) {
               src={imageUrl}
               alt={address}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                e.target.style.display = 'none'
+                e.target.nextSibling.style.display = 'flex'
+              }}
             />
-          ) : (
-            <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
-              <span className="text-neutral-400">No Image</span>
-            </div>
-          )}
+          ) : null}
+          <div className="w-full h-full" style={{ display: imageUrl ? 'none' : 'flex' }}>
+            <ImagePlaceholder type="house" size="large" />
+          </div>
 
           {/* Status tag */}
           <div className="absolute top-3 left-3">

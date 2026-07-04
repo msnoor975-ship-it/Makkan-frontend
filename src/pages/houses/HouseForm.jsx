@@ -18,6 +18,7 @@ function HouseForm({ house, isEdit }) {
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(house?.imageUrl || '')
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -118,6 +119,7 @@ function HouseForm({ house, isEdit }) {
     if (!imageFile) return
 
     setUploading(true)
+    setUploadProgress(0)
     const formData = new FormData()
     formData.append('image', imageFile)
     formData.append('type', 'house')
@@ -127,15 +129,21 @@ function HouseForm({ house, isEdit }) {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          setUploadProgress(progress)
+        },
       })
       console.log('Upload successful:', response.data.imageUrl)
       setFormData((prev) => ({ ...prev, imageUrl: response.data.imageUrl }))
       setUploading(false)
+      setUploadProgress(0)
       return response.data.imageUrl
     } catch (error) {
       console.error('Upload failed:', error)
       alert('Failed to upload image. Please try again.')
       setUploading(false)
+      setUploadProgress(0)
       throw error
     }
   }
@@ -298,17 +306,43 @@ function HouseForm({ house, isEdit }) {
               type="file"
               accept="image/*"
               onChange={handleImageChange}
+              disabled={uploading}
               style={{
                 width: '100%',
                 padding: '0.5rem',
                 border: '1px solid #cbd5e1',
                 borderRadius: '8px',
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                cursor: uploading ? 'not-allowed' : 'pointer',
+                opacity: uploading ? 0.6 : 1
               }}
             />
             {uploading && (
-              <div style={{ marginTop: '0.5rem', color: '#64748b', fontSize: '0.875rem' }}>
-                Uploading image...
+              <div style={{ marginTop: '0.5rem' }}>
+                <div style={{
+                  width: '100%',
+                  backgroundColor: '#e2e8f0',
+                  borderRadius: '8px',
+                  height: '8px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    width: `${uploadProgress}%`,
+                    backgroundColor: '#0EA97B',
+                    height: '100%',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                <div style={{
+                  marginTop: '0.25rem',
+                  color: '#64748b',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  justifyContent: 'space-between'
+                }}>
+                  <span>Uploading image...</span>
+                  <span>{uploadProgress}%</span>
+                </div>
               </div>
             )}
           </div>
