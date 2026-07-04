@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { MapPin, Home, Calendar, DollarSign, Phone, Mail } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import ImagePlaceholder from '../components/ImagePlaceholder'
 import client from '../api/client'
 
 function PropertyDetail() {
@@ -73,12 +74,15 @@ function PropertyDetail() {
             src={property.imageUrl}
             alt={property.address}
             className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              e.target.nextSibling.style.display = 'flex'
+            }}
           />
-        ) : (
-          <div className="w-full h-full bg-neutral-300 flex items-center justify-center">
-            <span className="text-neutral-500 text-lg">No Image Available</span>
-          </div>
-        )}
+        ) : null}
+        <div className="w-full h-full" style={{ display: property.imageUrl ? 'none' : 'flex' }}>
+          <ImagePlaceholder type="house" size="large" />
+        </div>
         <div className="absolute top-4 left-4">
           <span className={`${getStatusColor()} text-white px-4 py-2 rounded-full text-sm font-semibold`}>
             {getStatusText()}

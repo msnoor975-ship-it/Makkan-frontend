@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import client from '../../api/client'
+import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function CustomerForm({ customer, isEdit }) {
   const [formData, setFormData] = useState({
@@ -293,7 +294,7 @@ function CustomerForm({ customer, isEdit }) {
               </button>
             )}
           </div>
-          {imagePreview && (
+          {imagePreview ? (
             <div style={{ marginBottom: '1rem' }}>
               <img
                 src={imagePreview}
@@ -305,7 +306,18 @@ function CustomerForm({ customer, isEdit }) {
                   borderRadius: '50%',
                   border: '2px solid #cbd5e1'
                 }}
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
+                }}
               />
+              <div style={{ width: '100px', height: '100px', display: 'none' }}>
+                <ImagePlaceholder type="user" size="large" />
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '1rem', width: '100px', height: '100px' }}>
+              <ImagePlaceholder type="user" size="large" />
             </div>
           )}
           <input

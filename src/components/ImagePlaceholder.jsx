@@ -1,16 +1,16 @@
 import { Home, User, Building, Image as ImageIcon } from 'lucide-react'
 
-function ImagePlaceholder({ type = 'default', size = 'medium' }) {
+function ImagePlaceholder({ type = 'default', size = 'medium', className = '' }) {
   const sizeClasses = {
     small: 'w-16 h-16',
     medium: 'w-24 h-24',
-    large: 'w-32 h-32',
+    large: 'w-full h-full',
   }
 
   const iconSizes = {
     small: 'w-6 h-6',
     medium: 'w-10 h-10',
-    large: 'w-14 h-14',
+    large: 'w-16 h-16',
   }
 
   const getIcon = () => {
@@ -40,7 +40,7 @@ function ImagePlaceholder({ type = 'default', size = 'medium' }) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center bg-neutral-100 rounded-lg">
+    <div className={`flex flex-col items-center justify-center bg-neutral-100 rounded-lg ${sizeClasses[size]} ${className}`}>
       <div className="text-neutral-400">
         {getIcon()}
       </div>

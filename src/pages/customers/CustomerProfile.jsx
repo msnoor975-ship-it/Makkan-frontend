@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import client from '../../api/client'
+import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function CustomerProfile() {
   const { id } = useParams()
@@ -79,7 +80,7 @@ function CustomerProfile() {
       <div style={cardStyles}>
         <h1 style={{ marginBottom: '1.5rem' }}>Customer Profile</h1>
 
-        {customer.imageUrl && (
+        {customer.imageUrl ? (
           <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
             <img
               src={customer.imageUrl}
@@ -93,8 +94,18 @@ function CustomerProfile() {
               }}
               onError={(e) => {
                 e.target.style.display = 'none'
+                e.target.nextSibling.style.display = 'flex'
               }}
             />
+            <div style={{ width: '150px', height: '150px', display: 'none' }}>
+              <ImagePlaceholder type="user" size="large" />
+            </div>
+          </div>
+        ) : (
+          <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '150px', height: '150px' }}>
+              <ImagePlaceholder type="user" size="large" />
+            </div>
           </div>
         )}
 

@@ -6,6 +6,7 @@ import client from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import ErrorMessage from '../../components/ErrorMessage'
 import ConfirmDialog from '../../components/ConfirmDialog'
+import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function CustomerList() {
   const [search, setSearch] = useState('')
@@ -81,13 +82,13 @@ function CustomerList() {
                 className="w-20 h-20 object-cover rounded-full mb-4 shadow-soft"
                 onError={(e) => {
                   e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
                 }}
               />
-            ) : (
-              <div className="w-20 h-20 bg-primary-500 rounded-full mb-4 flex items-center justify-center text-white text-2xl font-bold shadow-soft">
-                {customer.fullName.charAt(0).toUpperCase()}
-              </div>
-            )}
+            ) : null}
+            <div className="w-20 h-20 rounded-full mb-4" style={{ display: customer.imageUrl ? 'none' : 'flex' }}>
+              <ImagePlaceholder type="user" size="large" />
+            </div>
             <h3 className="text-ink font-heading font-semibold text-lg mb-2">{customer.fullName}</h3>
             <p className="text-muted text-sm mb-1">{customer.phone || 'No phone'}</p>
             <p className="text-muted text-sm mb-4">{customer.email || 'No email'}</p>

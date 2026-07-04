@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import client from '../../api/client'
+import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function HomeownerForm() {
   const [formData, setFormData] = useState({
@@ -245,7 +246,7 @@ function HomeownerForm() {
               </button>
             )}
           </div>
-          {imagePreview && (
+          {imagePreview ? (
             <div style={{ marginBottom: '1rem' }}>
               <img
                 src={imagePreview}
@@ -257,7 +258,18 @@ function HomeownerForm() {
                   borderRadius: '50%',
                   border: '2px solid #cbd5e1'
                 }}
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
+                }}
               />
+              <div style={{ width: '100px', height: '100px', display: 'none' }}>
+                <ImagePlaceholder type="user" size="large" />
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginBottom: '1rem', width: '100px', height: '100px' }}>
+              <ImagePlaceholder type="user" size="large" />
             </div>
           )}
           <input
