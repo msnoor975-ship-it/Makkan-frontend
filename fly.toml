@@ -26,7 +26,7 @@ primary_region = 'ams'
     grace_period = '5s'
     method = 'GET'
     path = '/'
-    protocol = 'http'
+    protocol = 'tcp'
     port = 80
 
 [[vm]]
