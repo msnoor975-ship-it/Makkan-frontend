@@ -18,7 +18,7 @@ function Hero() {
             {/* Main image */}
             <div className="relative bg-surface rounded-2xl shadow-medium overflow-hidden">
               <img
-                src="/images/hero/hero-house-1.jpg"
+                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80"
                 alt="Featured Property"
                 className="w-full h-auto object-cover"
                 style={{ minHeight: '400px' }}
