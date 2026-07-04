@@ -26,6 +26,8 @@ primary_region = 'ams'
     grace_period = '5s'
     method = 'GET'
     path = '/'
+    protocol = 'http'
+    port = 80
 
 [[vm]]
   cpu_kind = 'shared'
