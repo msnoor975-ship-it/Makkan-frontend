@@ -44,7 +44,13 @@ function Home() {
       <PropertyListing />
 
       {/* Agent Contact Section */}
-      <AgentContact />
+      <AgentContact agent={{
+        name: 'Sarah Johnson',
+        title: 'Senior Real Estate Agent',
+        phone: '+966 50 123 4567',
+        image: 'https://onqthpvxhgscbxszeutd.supabase.co/storage/v1/object/public/agent-images/agent_image.jpg',
+        description: 'Our certified agents are here to help you find your perfect property. With years of experience and deep market knowledge, we provide personalized service to match your needs.'
+      }} />
 
       {/* Footer */}
       <Footer />

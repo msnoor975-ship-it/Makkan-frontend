@@ -1,4 +1,5 @@
 import { Phone, Calendar } from 'lucide-react'
+import ImagePlaceholder from './ImagePlaceholder'
 
 function AgentContact({ agent }) {
   // Use provided agent data or fallback to default
@@ -6,7 +7,7 @@ function AgentContact({ agent }) {
     name: 'Sarah Johnson',
     title: 'Senior Real Estate Agent',
     phone: '+966 50 123 4567',
-    image: '/images/agents/default-agent.jpg',
+    image: '', // Will use placeholder if empty
     description: 'Our certified agents are here to help you find your perfect property. With years of experience and deep market knowledge, we provide personalized service to match your needs.'
   }
 
@@ -24,12 +25,15 @@ function AgentContact({ agent }) {
                       src={agentData.image}
                       alt={agentData.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        e.target.nextSibling.style.display = 'flex'
+                      }}
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-neutral-200">
-                      <span className="text-neutral-400 text-lg">Agent Photo</span>
-                    </div>
-                  )}
+                  ) : null}
+                  <div className="w-full h-full" style={{ display: agentData.image ? 'none' : 'flex' }}>
+                    <ImagePlaceholder type="user" size="large" />
+                  </div>
                 </div>
                 {/* Decorative accent */}
                 <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary-200 rounded-full opacity-50"></div>
