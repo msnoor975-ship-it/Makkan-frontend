@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Phone, Mail, ChevronRight, ArrowUp } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
+import ImagePlaceholder from './ImagePlaceholder'
 
 function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false)
@@ -156,18 +157,25 @@ function Footer() {
                         src={property.imageUrl}
                         alt={property.address}
                         className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'flex'
+                        }}
                       />
-                    ) : (
-                      <div className="w-full h-full bg-neutral-600" />
-                    )}
+                    ) : null}
+                    <div className="w-full h-full" style={{ display: property.imageUrl ? 'none' : 'flex' }}>
+                      <ImagePlaceholder type="house" size="large" />
+                    </div>
                   </div>
                 ))}
                 {/* Fallback placeholders if no data */}
                 {!recentProperties && [...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square rounded-lg bg-neutral-600"
-                  />
+                    className="aspect-square rounded-lg"
+                  >
+                    <ImagePlaceholder type="house" size="large" />
+                  </div>
                 ))}
               </div>
             </div>
