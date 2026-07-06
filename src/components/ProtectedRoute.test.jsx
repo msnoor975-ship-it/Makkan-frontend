@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import ProtectedRoute from './ProtectedRoute'
+import { useAuthStore } from '../store/authStore'
 
 // Mock the auth store
 vi.mock('../store/authStore', () => ({
@@ -14,13 +15,13 @@ describe('ProtectedRoute Component', () => {
   })
 
   it('redirects to login when no token is present', () => {
-    vi.mocked(require('../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       token: null,
       role: null,
-    })
+    }))
 
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/protected']}>
         <Routes>
           <Route
             path="/protected"
@@ -32,7 +33,7 @@ describe('ProtectedRoute Component', () => {
           />
           <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Login Page')).toBeInTheDocument()
@@ -40,13 +41,13 @@ describe('ProtectedRoute Component', () => {
   })
 
   it('renders children when token is present and no role restriction', () => {
-    vi.mocked(require('../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       token: 'fake-token',
       role: 'sales_employee',
-    })
+    }))
 
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/protected']}>
         <Routes>
           <Route
             path="/protected"
@@ -57,20 +58,20 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument()
   })
 
   it('redirects to not-authorized when role is not in allowedRoles', () => {
-    vi.mocked(require('../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       token: 'fake-token',
       role: 'secretary',
-    })
+    }))
 
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/protected']}>
         <Routes>
           <Route
             path="/protected"
@@ -82,7 +83,7 @@ describe('ProtectedRoute Component', () => {
           />
           <Route path="/not-authorized" element={<div>Not Authorized</div>} />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Not Authorized')).toBeInTheDocument()
@@ -90,13 +91,13 @@ describe('ProtectedRoute Component', () => {
   })
 
   it('renders children when role is in allowedRoles', () => {
-    vi.mocked(require('../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       token: 'fake-token',
       role: 'manager',
-    })
+    }))
 
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/protected']}>
         <Routes>
           <Route
             path="/protected"
@@ -107,20 +108,20 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument()
   })
 
   it('renders children when role is in allowedRoles with single role', () => {
-    vi.mocked(require('../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       token: 'fake-token',
       role: 'manager',
-    })
+    }))
 
     render(
-      <BrowserRouter>
+      <MemoryRouter initialEntries={['/protected']}>
         <Routes>
           <Route
             path="/protected"
@@ -131,7 +132,7 @@ describe('ProtectedRoute Component', () => {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </MemoryRouter>
     )
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument()

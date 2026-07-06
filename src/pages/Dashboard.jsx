@@ -42,7 +42,7 @@ function Dashboard() {
           </div>
           <div className="bg-neutral-50 rounded-xl p-6 text-center">
             <h3 className="text-primary-500 font-heading font-bold text-2xl mb-2">
-              {role === 'manager' ? 'Admin' : role === 'secretary' ? 'Support' : 'Staff'}
+              {role === 'manager' ? 'Manager' : role === 'secretary' ? 'Support' : 'Staff'}
             </h3>
             <p className="text-muted text-sm">User type</p>
           </div>

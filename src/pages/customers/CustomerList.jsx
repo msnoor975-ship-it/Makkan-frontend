@@ -53,12 +53,14 @@ function CustomerList() {
     <div className="bg-surface rounded-xl shadow-card p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-ink font-heading font-bold text-3xl">Customers</h1>
-        <Link
-          to="/customers/add"
-          className="bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold text-sm transition-colors"
-        >
-          Add Customer
-        </Link>
+        {role !== 'secretary' && (
+          <Link
+            to="/customers/add"
+            className="bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold text-sm transition-colors"
+          >
+            Add Customer
+          </Link>
+        )}
       </div>
 
       <input
@@ -103,10 +105,12 @@ function CustomerList() {
               <Link to={`/customers/${customer.id}`} className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                 View
               </Link>
-              <Link to={`/customers/${customer.id}/edit`} className="bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                Edit
-              </Link>
-              {role === 'manager' && (
+              {role !== 'secretary' && (
+                <Link to={`/customers/${customer.id}/edit`} className="bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                  Edit
+                </Link>
+              )}
+              {role !== 'secretary' && (
                 <button
                   onClick={() => {
                     setDeleteId(customer.id)

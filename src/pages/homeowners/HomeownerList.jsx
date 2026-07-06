@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '../../store/authStore'
 import client from '../../api/client'
 import ConfirmDialog from '../../components/ConfirmDialog'
 
@@ -8,6 +9,7 @@ function HomeownerList() {
   const [deleteId, setDeleteId] = useState(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const queryClient = useQueryClient()
+  const role = useAuthStore((state) => state.role)
 
   const { data: homeowners, isLoading, error } = useQuery({
     queryKey: ['homeowners'],
@@ -46,12 +48,14 @@ function HomeownerList() {
     <div className="bg-surface rounded-xl shadow-card p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-ink font-heading font-bold text-3xl">Homeowners</h1>
-        <Link
-          to="/homeowners/add"
-          className="bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold text-sm transition-colors"
-        >
-          Add Homeowner
-        </Link>
+        {role !== 'secretary' && (
+          <Link
+            to="/homeowners/add"
+            className="bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold text-sm transition-colors"
+          >
+            Add Homeowner
+          </Link>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -78,15 +82,17 @@ function HomeownerList() {
                   <Link to={`/homeowners/${homeowner.id}`} className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2">
                     View
                   </Link>
-                  <button
-                    onClick={() => {
-                      setDeleteId(homeowner.id)
-                      setShowDeleteDialog(true)
-                    }}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                  >
-                    Delete
-                  </button>
+                  {role !== 'secretary' && (
+                    <button
+                      onClick={() => {
+                        setDeleteId(homeowner.id)
+                        setShowDeleteDialog(true)
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

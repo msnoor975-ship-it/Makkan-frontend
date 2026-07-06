@@ -3,6 +3,8 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CustomerList from './CustomerList'
+import { useAuthStore } from '../../store/authStore'
+import client from '../../api/client'
 
 // Mock the auth store
 vi.mock('../../store/authStore', () => ({
@@ -48,14 +50,13 @@ describe('CustomerList Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(require('../../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       role: 'manager',
-    })
+    }))
   })
 
   it('renders customer list with data', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({
+    vi.mocked(client).get.mockResolvedValue({
       data: [
         {
           id: '1',
@@ -63,7 +64,7 @@ describe('CustomerList Component', () => {
           phone: '1234567890',
           email: 'john@example.com',
           status: 'active',
-          addedByUser: { fullName: 'Admin' },
+          addedByUser: { fullName: 'Manager' },
         },
       ],
     })
@@ -83,8 +84,7 @@ describe('CustomerList Component', () => {
   })
 
   it('renders empty state when no customers', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({ data: [] })
+    vi.mocked(client).get.mockResolvedValue({ data: [] })
 
     render(
       <QueryClientProvider client={mockQueryClient}>
@@ -100,8 +100,7 @@ describe('CustomerList Component', () => {
   })
 
   it('filters customers by search term', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({
+    vi.mocked(client).get.mockResolvedValue({
       data: [
         {
           id: '1',
@@ -109,7 +108,7 @@ describe('CustomerList Component', () => {
           phone: '1234567890',
           email: 'john@example.com',
           status: 'active',
-          addedByUser: { fullName: 'Admin' },
+          addedByUser: { fullName: 'Manager' },
         },
       ],
     })
@@ -130,15 +129,14 @@ describe('CustomerList Component', () => {
     fireEvent.change(searchInput, { target: { value: 'John' } })
 
     await waitFor(() => {
-      expect(mockClient.get).toHaveBeenCalledWith('/api/customers', {
+      expect(vi.mocked(client).get).toHaveBeenCalledWith('/api/customers', {
         params: { search: 'John' },
       })
     })
   })
 
-  it('shows delete button only for manager role', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({
+  it('shows delete button for manager role', async () => {
+    vi.mocked(client).get.mockResolvedValue({
       data: [
         {
           id: '1',
@@ -146,14 +144,14 @@ describe('CustomerList Component', () => {
           phone: '1234567890',
           email: 'john@example.com',
           status: 'active',
-          addedByUser: { fullName: 'Admin' },
+          addedByUser: { fullName: 'Manager' },
         },
       ],
     })
 
-    vi.mocked(require('../../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       role: 'manager',
-    })
+    }))
 
     render(
       <QueryClientProvider client={mockQueryClient}>
@@ -168,9 +166,8 @@ describe('CustomerList Component', () => {
     })
   })
 
-  it('hides delete button for non-manager roles', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({
+  it('shows delete button for sales_employee role', async () => {
+    vi.mocked(client).get.mockResolvedValue({
       data: [
         {
           id: '1',
@@ -178,14 +175,45 @@ describe('CustomerList Component', () => {
           phone: '1234567890',
           email: 'john@example.com',
           status: 'active',
-          addedByUser: { fullName: 'Admin' },
+          addedByUser: { fullName: 'Manager' },
         },
       ],
     })
 
-    vi.mocked(require('../../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       role: 'sales_employee',
+    }))
+
+    render(
+      <QueryClientProvider client={mockQueryClient}>
+        <BrowserRouter>
+          <CustomerList />
+        </BrowserRouter>
+      </QueryClientProvider>
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Delete')).toBeInTheDocument()
     })
+  })
+
+  it('hides delete button for secretary role', async () => {
+    vi.mocked(client).get.mockResolvedValue({
+      data: [
+        {
+          id: '1',
+          fullName: 'John Doe',
+          phone: '1234567890',
+          email: 'john@example.com',
+          status: 'active',
+          addedByUser: { fullName: 'Manager' },
+        },
+      ],
+    })
+
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
+      role: 'secretary',
+    }))
 
     render(
       <QueryClientProvider client={mockQueryClient}>
@@ -201,8 +229,7 @@ describe('CustomerList Component', () => {
   })
 
   it('opens delete confirmation dialog when delete button clicked', async () => {
-    const mockClient = require('../../api/client').default
-    mockClient.get.mockResolvedValue({
+    vi.mocked(client).get.mockResolvedValue({
       data: [
         {
           id: '1',
@@ -210,14 +237,14 @@ describe('CustomerList Component', () => {
           phone: '1234567890',
           email: 'john@example.com',
           status: 'active',
-          addedByUser: { fullName: 'Admin' },
+          addedByUser: { fullName: 'Manager' },
         },
       ],
     })
 
-    vi.mocked(require('../../store/authStore').useAuthStore).mockReturnValue({
+    vi.mocked(useAuthStore).mockImplementation((selector) => selector({
       role: 'manager',
-    })
+    }))
 
     render(
       <QueryClientProvider client={mockQueryClient}>

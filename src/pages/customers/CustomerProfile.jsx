@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
+import { useAuthStore } from '../../store/authStore'
 import client from '../../api/client'
 import ImagePlaceholder from '../../components/ImagePlaceholder'
 
 function CustomerProfile() {
   const { id } = useParams()
+  const role = useAuthStore((state) => state.role)
 
   const { data: customer, isLoading, error } = useQuery({
     queryKey: ['customer', id],
@@ -144,9 +146,11 @@ function CustomerProfile() {
         </div>
 
         <div style={{ marginTop: '1.5rem' }}>
-          <Link to={`/customers/${customer.id}/edit`} style={buttonStyles}>
-            Edit Customer
-          </Link>
+          {role !== 'secretary' && (
+            <Link to={`/customers/${customer.id}/edit`} style={buttonStyles}>
+              Edit Customer
+            </Link>
+          )}
         </div>
       </div>
 

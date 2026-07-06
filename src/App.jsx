@@ -35,6 +35,8 @@ import SearchAndReserve from './pages/reservations/SearchAndReserve'
 import ReservationList from './pages/reservations/ReservationList'
 import AddFinancialEntry from './pages/finance/AddFinancialEntry'
 import FinancialReport from './pages/finance/FinancialReport'
+import UserManagement from './pages/admin/UserManagement'
+import ApprovalQueue from './pages/admin/ApprovalQueue'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -237,12 +239,35 @@ function App() {
           <Route
             path="/finance/add"
             element={
-              <ProtectedRoute allowedRoles={['secretary']}>
+              <ProtectedRoute allowedRoles={['manager', 'secretary']}>
                 <MainLayout />
               </ProtectedRoute>
             }
           >
             <Route index element={<AddFinancialEntry />} />
+          </Route>
+
+          {/* Manager Routes - User Management */}
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['manager']}>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<UserManagement />} />
+          </Route>
+
+          <Route
+            path="/admin/approvals"
+            element={
+              <ProtectedRoute allowedRoles={['manager']}>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<ApprovalQueue />} />
           </Route>
         </Routes>
       </Router>
