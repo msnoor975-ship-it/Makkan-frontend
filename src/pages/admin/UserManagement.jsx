@@ -14,6 +14,7 @@ function UserManagement() {
     fullName: '',
     role: 'sales_employee',
   })
+  const [createError, setCreateError] = useState('')
   const queryClient = useQueryClient()
   const role = useAuthStore((state) => state.role)
 
@@ -40,11 +41,12 @@ function UserManagement() {
         fullName: '',
         role: 'sales_employee',
       })
+      setCreateError('')
     },
     onError: (error) => {
       console.error('Error creating user:', error)
       const errorMessage = error.response?.data?.message || error.message
-      alert(`Failed to create user: ${errorMessage}`)
+      setCreateError(errorMessage)
       setNewUser((prev) => ({ ...prev, password: '' }))
     },
   })
@@ -183,6 +185,11 @@ function UserManagement() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Create New User</h2>
+              {createError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{createError}</p>
+                </div>
+              )}
               <form onSubmit={handleCreateUser}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-neutral-700 mb-1">
@@ -238,7 +245,10 @@ function UserManagement() {
                 <div className="flex justify-end space-x-3">
                   <button
                     type="button"
-                    onClick={() => setShowCreateModal(false)}
+                    onClick={() => {
+                      setShowCreateModal(false)
+                      setCreateError('')
+                    }}
                     className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50"
                   >
                     Cancel
