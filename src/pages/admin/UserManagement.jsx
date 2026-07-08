@@ -15,6 +15,8 @@ function UserManagement() {
     role: 'sales_employee',
   })
   const [createError, setCreateError] = useState('')
+  const [deletingUserId, setDeletingUserId] = useState(null)
+  const [updatingUserId, setUpdatingUserId] = useState(null)
   const queryClient = useQueryClient()
   const role = useAuthStore((state) => state.role)
 
@@ -58,6 +60,7 @@ function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['users', search])
+      setUpdatingUserId(null)
     },
   })
 
@@ -67,6 +70,7 @@ function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['users', search])
+      setDeletingUserId(null)
     },
   })
 
@@ -76,11 +80,13 @@ function UserManagement() {
   }
 
   const handleRoleChange = (userId, newRole) => {
+    setUpdatingUserId(userId)
     updateRoleMutation.mutate({ userId, role: newRole })
   }
 
   const handleDeleteUser = (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
+      setDeletingUserId(userId)
       deleteMutation.mutate(userId)
     }
   }
@@ -156,7 +162,7 @@ function UserManagement() {
                     <select
                       value={user.role}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      disabled={updateRoleMutation.isPending}
+                      disabled={updatingUserId === user.id}
                       className="text-sm border border-neutral-300 rounded px-2 py-1 disabled:opacity-50"
                     >
                       <option value="manager">Manager</option>
@@ -171,10 +177,10 @@ function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => handleDeleteUser(user.id)}
-                      disabled={deleteMutation.isPending}
+                      disabled={deletingUserId === user.id}
                       className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                      {deletingUserId === user.id ? 'Deleting...' : 'Delete'}
                     </button>
                   </td>
                 </tr>
