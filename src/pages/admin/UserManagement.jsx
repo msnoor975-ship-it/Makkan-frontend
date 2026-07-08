@@ -43,7 +43,9 @@ function UserManagement() {
     },
     onError: (error) => {
       console.error('Error creating user:', error)
-      alert(`Failed to create user: ${error.response?.data?.error || error.message}`)
+      const errorMessage = error.response?.data?.message || error.message
+      alert(`Failed to create user: ${errorMessage}`)
+      setNewUser((prev) => ({ ...prev, password: '' }))
     },
   })
 
