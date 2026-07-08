@@ -156,7 +156,8 @@ function UserManagement() {
                     <select
                       value={user.role}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      className="text-sm border border-neutral-300 rounded px-2 py-1"
+                      disabled={updateRoleMutation.isPending}
+                      className="text-sm border border-neutral-300 rounded px-2 py-1 disabled:opacity-50"
                     >
                       <option value="manager">Manager</option>
                       <option value="sales_employee">Sales Employee</option>
@@ -170,9 +171,10 @@ function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
                       onClick={() => handleDeleteUser(user.id)}
-                      className="text-red-600 hover:text-red-900"
+                      disabled={deleteMutation.isPending}
+                      className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Delete
+                      {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
                     </button>
                   </td>
                 </tr>
