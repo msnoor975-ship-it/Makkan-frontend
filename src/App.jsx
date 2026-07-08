@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
-import Signup from './pages/Signup'
 import ChangePassword from './pages/ChangePassword'
 import NotAuthorized from './pages/NotAuthorized'
 import Help from './pages/Help'
@@ -53,7 +52,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/properties" element={<Properties />} />

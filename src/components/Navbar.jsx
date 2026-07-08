@@ -129,10 +129,10 @@ function Navbar() {
               </Link>
             ) : (
               <Link
-                to="/signup"
+                to="/login"
                 className="bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold transition-colors"
               >
-                Get Started
+                Login
               </Link>
             )}
           </div>
@@ -245,11 +245,11 @@ function Navbar() {
                 </Link>
               ) : (
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="block w-full bg-primary-500 hover:bg-primary-600 text-white rounded-lg px-6 py-2.5 font-semibold transition-colors text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Get Started
+                  Login
                 </Link>
               )}
             </div>

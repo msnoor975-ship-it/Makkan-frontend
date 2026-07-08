@@ -120,10 +120,7 @@ function Login() {
 
             {/* Footer */}
             <p className="text-center mt-6 text-neutral-600 text-sm">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary-500 hover:text-primary-600 font-semibold">
-                Sign up
-              </Link>
+              Contact your manager to get an account
             </p>
           </div>
         </div>

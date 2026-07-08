@@ -58,10 +58,10 @@ function Hero() {
                     <ArrowRight className="w-5 h-5" />
                   </Link>
                   <Link
-                    to="/signup"
+                    to="/login"
                     className="bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg px-8 py-3 font-semibold transition-colors"
                   >
-                    Get Started
+                    Login
                   </Link>
                 </>
               )}
