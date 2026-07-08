@@ -57,6 +57,7 @@ function Help() {
         'View all reservations',
         'Access financial reports',
         'Delete customers (with proper authorization)',
+        'Manage user accounts (create, update roles, delete)',
       ],
     },
     secretary: {
@@ -76,7 +77,7 @@ function Help() {
       <h1 style={{ marginBottom: '2rem' }}>Help & Documentation</h1>
 
       <div style={sectionStyles}>
-        <h2 style={headingStyles}>Your Role: {role?.replace(/_/g, ' ').toUpperCase()}</h2>
+        <h2 style={headingStyles}>Your Role: {role ? role.replace(/_/g, ' ').toUpperCase() : 'Not Logged In'}</h2>
         {currentRole ? (
           <>
             <h3 style={{ marginBottom: '0.75rem' }}>{currentRole.title}</h3>
@@ -87,7 +88,7 @@ function Help() {
             </ul>
           </>
         ) : (
-          <p>No role assigned. Please contact your administrator.</p>
+          <p>{role ? 'No specific permissions configured for your role.' : 'Please log in to see your role-specific permissions.'}</p>
         )}
       </div>
 
