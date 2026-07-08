@@ -33,9 +33,6 @@ function MainLayout() {
               <Link to="/admin/users" className={`${isActive('/admin/users') ? 'text-primary-500 bg-neutral-50' : 'text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'} px-4 py-2 rounded-lg font-medium text-sm transition-colors`}>
                 User Management
               </Link>
-              <Link to="/admin/approvals" className={`${isActive('/admin/approvals') ? 'text-primary-500 bg-neutral-50' : 'text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'} px-4 py-2 rounded-lg font-medium text-sm transition-colors`}>
-                Approvals
-              </Link>
               <Link to="/customers" className={`${isActive('/customers') ? 'text-primary-500 bg-neutral-50' : 'text-neutral-600 hover:text-primary-500 hover:bg-neutral-50'} px-4 py-2 rounded-lg font-medium text-sm transition-colors`}>
                 Customers
               </Link>

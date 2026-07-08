@@ -36,7 +36,6 @@ import ReservationList from './pages/reservations/ReservationList'
 import AddFinancialEntry from './pages/finance/AddFinancialEntry'
 import FinancialReport from './pages/finance/FinancialReport'
 import UserManagement from './pages/admin/UserManagement'
-import ApprovalQueue from './pages/admin/ApprovalQueue'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -257,17 +256,6 @@ function App() {
             }
           >
             <Route index element={<UserManagement />} />
-          </Route>
-
-          <Route
-            path="/admin/approvals"
-            element={
-              <ProtectedRoute allowedRoles={['manager']}>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<ApprovalQueue />} />
           </Route>
         </Routes>
       </Router>

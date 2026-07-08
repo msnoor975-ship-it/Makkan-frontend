@@ -12,7 +12,6 @@ function UserManagement() {
     username: '',
     password: '',
     fullName: '',
-    email: '',
     role: 'sales_employee',
   })
   const queryClient = useQueryClient()
@@ -39,19 +38,8 @@ function UserManagement() {
         username: '',
         password: '',
         fullName: '',
-        email: '',
         role: 'sales_employee',
       })
-    },
-  })
-
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ userId, status }) => {
-      const response = await client.patch(`/api/users/${userId}/status`, { status })
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
     },
   })
 
@@ -77,10 +65,6 @@ function UserManagement() {
   const handleCreateUser = (e) => {
     e.preventDefault()
     createMutation.mutate(newUser)
-  }
-
-  const handleStatusChange = (userId, newStatus) => {
-    updateStatusMutation.mutate({ userId, status: newStatus })
   }
 
   const handleRoleChange = (userId, newRole) => {
@@ -144,9 +128,6 @@ function UserManagement() {
                   Role
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
                   Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
@@ -161,7 +142,6 @@ function UserManagement() {
                     <div>
                       <div className="text-sm font-medium text-neutral-900">{user.fullName}</div>
                       <div className="text-sm text-neutral-500">{user.username}</div>
-                      {user.email && <div className="text-sm text-neutral-400">{user.email}</div>}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -174,18 +154,6 @@ function UserManagement() {
                       <option value="sales_employee">Sales Employee</option>
                       <option value="rental_employee">Rental Employee</option>
                       <option value="secretary">Secretary</option>
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <select
-                      value={user.status}
-                      onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                      className="text-sm border border-neutral-300 rounded px-2 py-1"
-                    >
-                      <option value="active">Active</option>
-                      <option value="pending">Pending</option>
-                      <option value="suspended">Suspended</option>
-                      <option value="deleted">Deleted</option>
                     </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
@@ -244,17 +212,6 @@ function UserManagement() {
                     onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
                     className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500"
                     required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500"
                   />
                 </div>
                 <div className="mb-4">
