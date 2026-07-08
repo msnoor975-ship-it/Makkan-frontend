@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import client from '../../api/client'
 
 function ReservationList() {
@@ -8,6 +7,14 @@ function ReservationList() {
   const [houseIdFilter, setHouseIdFilter] = useState('')
   const [customerSearch, setCustomerSearch] = useState('')
   const [houseSearch, setHouseSearch] = useState('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newReservation, setNewReservation] = useState({
+    customerId: '',
+    houseId: '',
+    reservationDate: new Date().toISOString().slice(0, 16),
+  })
+  const [createError, setCreateError] = useState('')
+  const queryClient = useQueryClient()
 
   const { data: customers } = useQuery({
     queryKey: ['customers'],
@@ -36,13 +43,40 @@ function ReservationList() {
     },
   })
 
+  const createMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await client.post('/api/reservations', data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['reservations'])
+      setShowCreateModal(false)
+      setNewReservation({
+        customerId: '',
+        houseId: '',
+        reservationDate: new Date().toISOString().slice(0, 16),
+      })
+      setCreateError('')
+    },
+    onError: (error) => {
+      console.error('Error creating reservation:', error)
+      const errorMessage = error.response?.data?.message || error.message
+      setCreateError(errorMessage)
+    },
+  })
+
   const filteredCustomers = customers?.filter((c) =>
     c.fullName.toLowerCase().includes(customerSearch.toLowerCase())
   )
 
   const filteredHouses = houses?.filter((h) =>
-    h.address.toLowerCase().includes(houseSearch.toLowerCase())
+    h.address.toLowerCase().includes(houseSearch.toLowerCase()) && h.status === 'available'
   )
+
+  const handleCreateReservation = (e) => {
+    e.preventDefault()
+    createMutation.mutate(newReservation)
+  }
 
   if (isLoading) {
     return <div className="text-center py-8 text-neutral-600">Loading reservations...</div>
@@ -56,12 +90,12 @@ function ReservationList() {
     <div className="bg-surface rounded-xl shadow-card p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-ink font-heading font-bold text-3xl">Reservations</h1>
-        <Link
-          to="/reservations/search-and-reserve"
+        <button
+          onClick={() => setShowCreateModal(true)}
           className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
         >
-          Search and Reserve House
-        </Link>
+          Create Reservation
+        </button>
       </div>
 
       <div className="mb-6 p-6 bg-neutral-50 rounded-lg">
@@ -132,10 +166,8 @@ function ReservationList() {
                   {reservation.customer?.fullName || '-'}
                   {reservation.customer?.email && <span className="text-muted text-xs"> ({reservation.customer.email})</span>}
                 </td>
-                <td className="px-6 py-4 text-sm">
-                  <Link to={`/houses/${reservation.houseId}`} className="text-primary-500 hover:text-primary-600 font-medium">
-                    {reservation.house?.address || '-'}
-                  </Link>
+                <td className="px-6 py-4 text-sm text-neutral-600">
+                  {reservation.house?.address || '-'}
                 </td>
                 <td className="px-6 py-4 text-sm text-neutral-600">
                   {new Date(reservation.reservationDate).toLocaleString()}
@@ -159,6 +191,103 @@ function ReservationList() {
       {reservations?.length === 0 && (
         <div className="text-center py-12 text-muted">
           No reservations found
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Create Reservation</h2>
+            {createError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm">{createError}</p>
+              </div>
+            )}
+            <form onSubmit={handleCreateReservation}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Customer *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search customers..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500 mb-2"
+                />
+                <select
+                  value={newReservation.customerId}
+                  onChange={(e) => setNewReservation({ ...newReservation, customerId: e.target.value })}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500"
+                  required
+                >
+                  <option value="">Select a customer</option>
+                  {filteredCustomers?.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.fullName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  House *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search houses..."
+                  value={houseSearch}
+                  onChange={(e) => setHouseSearch(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500 mb-2"
+                />
+                <select
+                  value={newReservation.houseId}
+                  onChange={(e) => setNewReservation({ ...newReservation, houseId: e.target.value })}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500"
+                  required
+                >
+                  <option value="">Select an available house</option>
+                  {filteredHouses?.map((h) => (
+                    <option key={h.id} value={h.id}>
+                      {h.address} - ${Number(h.price).toLocaleString()} ({h.listingType})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">
+                  Reservation Date
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newReservation.reservationDate}
+                  onChange={(e) => setNewReservation({ ...newReservation, reservationDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-primary-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateModal(false)
+                    setCreateError('')
+                    setCustomerSearch('')
+                    setHouseSearch('')
+                  }}
+                  className="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
+                >
+                  {createMutation.isPending ? 'Creating...' : 'Create Reservation'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
