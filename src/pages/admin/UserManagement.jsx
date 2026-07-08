@@ -32,7 +32,7 @@ function UserManagement() {
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['users', search] })
       setShowCreateModal(false)
       setNewUser({
         username: '',
@@ -49,7 +49,7 @@ function UserManagement() {
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['users', search] })
     },
   })
 
@@ -58,7 +58,7 @@ function UserManagement() {
       await client.delete(`/api/users/${userId}`)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['users', search] })
     },
   })
 
