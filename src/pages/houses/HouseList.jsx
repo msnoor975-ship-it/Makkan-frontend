@@ -30,7 +30,7 @@ function HouseList() {
       await client.delete(`/api/houses/${id}`)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['houses'])
+      queryClient.invalidateQueries(['houses', statusFilter, listingTypeFilter])
       setShowDeleteDialog(false)
       setDeleteId(null)
     },

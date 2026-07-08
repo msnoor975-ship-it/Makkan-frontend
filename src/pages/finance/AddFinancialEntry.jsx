@@ -37,7 +37,7 @@ function AddFinancialEntry() {
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['finance'])
+      queryClient.invalidateQueries({ queryKey: ['finance'] })
       navigate('/finance/report')
     },
   })

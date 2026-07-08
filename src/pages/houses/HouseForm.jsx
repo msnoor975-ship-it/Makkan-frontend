@@ -60,7 +60,7 @@ function HouseForm({ house, isEdit }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['houses'])
+      queryClient.invalidateQueries({ queryKey: ['houses'] })
       navigate('/houses')
     },
   })

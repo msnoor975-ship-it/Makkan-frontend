@@ -29,7 +29,7 @@ function CustomerList() {
       await client.delete(`/api/customers/${id}`)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['customers'])
+      queryClient.invalidateQueries(['customers', search])
       setShowDeleteDialog(false)
       setDeleteId(null)
     },

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import client from '../../api/client'
 
 function SearchAndReserve() {
@@ -15,6 +15,7 @@ function SearchAndReserve() {
   const [customerSearch, setCustomerSearch] = useState('')
   const [success, setSuccess] = useState(false)
   const [reservedHouse, setReservedHouse] = useState(null)
+  const queryClient = useQueryClient()
 
   const { data: customers } = useQuery({
     queryKey: ['customers'],
@@ -30,6 +31,7 @@ function SearchAndReserve() {
       return response.data
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
       setSuccess(true)
       setReservedHouse(data.house)
       setFormData({
