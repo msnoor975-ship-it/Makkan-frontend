@@ -49,7 +49,8 @@ function ReservationList() {
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['reservations'])
+      queryClient.invalidateQueries(['reservations', customerIdFilter, houseIdFilter])
+      queryClient.invalidateQueries(['houses'])
       setShowCreateModal(false)
       setNewReservation({
         customerId: '',
