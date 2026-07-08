@@ -41,6 +41,10 @@ function UserManagement() {
         role: 'sales_employee',
       })
     },
+    onError: (error) => {
+      console.error('Error creating user:', error)
+      alert(`Failed to create user: ${error.response?.data?.error || error.message}`)
+    },
   })
 
   const updateRoleMutation = useMutation({
