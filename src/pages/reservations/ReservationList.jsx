@@ -54,7 +54,15 @@ function ReservationList() {
 
   return (
     <div className="bg-surface rounded-xl shadow-card p-8">
-      <h1 className="text-ink font-heading font-bold text-3xl mb-6">Reservations</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-ink font-heading font-bold text-3xl">Reservations</h1>
+        <Link
+          to="/reservations/search-and-reserve"
+          className="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+        >
+          Search and Reserve House
+        </Link>
+      </div>
 
       <div className="mb-6 p-6 bg-neutral-50 rounded-lg">
         <div className="mb-4">
