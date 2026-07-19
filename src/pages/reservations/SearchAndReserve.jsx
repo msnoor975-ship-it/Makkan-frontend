@@ -4,20 +4,23 @@ import client from '../../api/client'
 
 function SearchAndReserve() {
   const [formData, setFormData] = useState({
-    customerId: '',
     listingType: '',
     minPrice: '',
     maxPrice: '',
     location: '',
-    reservationDate: new Date().toISOString().slice(0, 16),
   })
   const [errors, setErrors] = useState({})
   const [customerSearch, setCustomerSearch] = useState('')
   const [searchResults, setSearchResults] = useState(null)
   const [selectedHouse, setSelectedHouse] = useState(null)
   const [showResults, setShowResults] = useState(false)
+  const [showCustomerSelect, setShowCustomerSelect] = useState(false)
   const [success, setSuccess] = useState(false)
   const [reservedHouse, setReservedHouse] = useState(null)
+  const [reservationData, setReservationData] = useState({
+    customerId: '',
+    reservationDate: new Date().toISOString().slice(0, 16),
+  })
   const queryClient = useQueryClient()
 
   const { data: customers } = useQuery({
@@ -54,25 +57,28 @@ function SearchAndReserve() {
       queryClient.invalidateQueries(['houses'])
       setSuccess(true)
       setReservedHouse(data.house)
+      setShowCustomerSelect(false)
       setShowResults(false)
       setSearchResults(null)
       setSelectedHouse(null)
       setFormData({
-        customerId: '',
         listingType: '',
         minPrice: '',
         maxPrice: '',
         location: '',
+      })
+      setReservationData({
+        customerId: '',
         reservationDate: new Date().toISOString().slice(0, 16),
       })
       setCustomerSearch('')
     },
   })
 
-  const validate = () => {
+  const validateReservation = () => {
     const newErrors = {}
 
-    if (!formData.customerId.trim()) {
+    if (!reservationData.customerId.trim()) {
       newErrors.customerId = 'Customer is required'
     }
 
@@ -87,29 +93,39 @@ function SearchAndReserve() {
     setShowResults(false)
     setSearchResults(null)
 
-    if (validate()) {
-      searchHousesMutation.mutate(formData)
-    }
+    searchHousesMutation.mutate(formData)
   }
 
-  const handleReserve = (houseId) => {
-    if (!formData.customerId) {
-      setErrors({ customerId: 'Customer is required' })
-      return
-    }
+  const handleReserveClick = (house) => {
+    setSelectedHouse(house)
+    setShowCustomerSelect(true)
+  }
 
-    const payload = {
-      customerId: formData.customerId,
-      houseId: houseId,
-      reservationDate: formData.reservationDate,
-    }
+  const handleReserveSubmit = (e) => {
+    e.preventDefault()
 
-    reserveMutation.mutate(payload)
+    if (validateReservation()) {
+      const payload = {
+        customerId: reservationData.customerId,
+        houseId: selectedHouse.id,
+        reservationDate: reservationData.reservationDate,
+      }
+
+      reserveMutation.mutate(payload)
+    }
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }))
+    }
+  }
+
+  const handleReservationChange = (e) => {
+    const { name, value } = e.target
+    setReservationData((prev) => ({ ...prev, [name]: value }))
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }))
     }
@@ -225,6 +241,99 @@ function SearchAndReserve() {
         </div>
       )}
 
+      {showCustomerSelect && selectedHouse && (
+        <div style={cardStyles}>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            Complete Reservation
+          </h2>
+          <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem', color: '#0369a1' }}>
+              Selected House
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+              <strong>Address:</strong> {selectedHouse.address}
+            </p>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+              <strong>Price:</strong> ${Number(selectedHouse.price).toLocaleString()}
+            </p>
+            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+              <strong>Type:</strong> {selectedHouse.listingType}
+            </p>
+          </div>
+          <form onSubmit={handleReserveSubmit}>
+            <div>
+              <label htmlFor="customerId" style={labelStyles}>
+                Customer *
+              </label>
+              <input
+                type="text"
+                placeholder="Search customers..."
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                style={inputStyles}
+              />
+              <select
+                id="customerId"
+                name="customerId"
+                value={reservationData.customerId}
+                onChange={handleReservationChange}
+                style={inputStyles}
+              >
+                <option value="">Select a customer</option>
+                {filteredCustomers?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.fullName} {c.email ? `(${c.email})` : ''}
+                  </option>
+                ))}
+              </select>
+              {errors.customerId && <div style={errorStyles}>{errors.customerId}</div>}
+            </div>
+            <div>
+              <label htmlFor="reservationDate" style={labelStyles}>
+                Reservation Date
+              </label>
+              <input
+                id="reservationDate"
+                name="reservationDate"
+                type="datetime-local"
+                value={reservationData.reservationDate}
+                onChange={handleReservationChange}
+                style={inputStyles}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowCustomerSelect(false)}
+                style={{
+                  ...buttonStyles,
+                  backgroundColor: '#64748b',
+                  flex: 1,
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#475569'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#64748b'}
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={reserveMutation.isPending}
+                style={{
+                  ...buttonStyles,
+                  backgroundColor: reserveMutation.isPending ? '#94a3b8' : '#10b981',
+                  flex: 1,
+                  cursor: reserveMutation.isPending ? 'not-allowed' : 'pointer',
+                }}
+                onMouseEnter={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#059669')}
+                onMouseLeave={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#10b981')}
+              >
+                {reserveMutation.isPending ? 'Reserving...' : 'Confirm Reservation'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {showResults && searchResults && (
         <div style={cardStyles}>
           <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
@@ -262,17 +371,15 @@ function SearchAndReserve() {
                     </p>
                   </div>
                   <button
-                    onClick={() => handleReserve(house.id)}
-                    disabled={reserveMutation.isPending}
+                    onClick={() => handleReserveClick(house)}
                     style={{
                       ...buttonStyles,
-                      backgroundColor: reserveMutation.isPending ? '#94a3b8' : '#10b981',
-                      cursor: reserveMutation.isPending ? 'not-allowed' : 'pointer',
+                      backgroundColor: '#10b981',
                     }}
-                    onMouseEnter={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#059669')}
-                    onMouseLeave={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#10b981')}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
                   >
-                    {reserveMutation.isPending ? 'Reserving...' : 'Reserve'}
+                    Select
                   </button>
                 </div>
               ))}
@@ -295,34 +402,6 @@ function SearchAndReserve() {
 
       <div style={cardStyles}>
         <form onSubmit={handleSearch}>
-          <div>
-            <label htmlFor="customerId" style={labelStyles}>
-              Customer *
-            </label>
-            <input
-              type="text"
-              placeholder="Search customers..."
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-              style={inputStyles}
-            />
-            <select
-              id="customerId"
-              name="customerId"
-              value={formData.customerId}
-              onChange={handleChange}
-              style={inputStyles}
-            >
-              <option value="">Select a customer</option>
-              {filteredCustomers?.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.fullName} {c.email ? `(${c.email})` : ''}
-                </option>
-              ))}
-            </select>
-            {errors.customerId && <div style={errorStyles}>{errors.customerId}</div>}
-          </div>
-
           <div>
             <label htmlFor="listingType" style={labelStyles}>
               Listing Type
@@ -383,20 +462,6 @@ function SearchAndReserve() {
               value={formData.location}
               onChange={handleChange}
               placeholder="e.g., Main St, downtown"
-              style={inputStyles}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="reservationDate" style={labelStyles}>
-              Reservation Date
-            </label>
-            <input
-              id="reservationDate"
-              name="reservationDate"
-              type="datetime-local"
-              value={formData.reservationDate}
-              onChange={handleChange}
               style={inputStyles}
             />
           </div>
