@@ -50,7 +50,7 @@ function Footer() {
   const { data: recentProperties } = useQuery({
     queryKey: ['recent-properties'],
     queryFn: async () => {
-      const response = await client.get('/api/houses?status=available&limit=6')
+      const response = await client.get('/api/houses?limit=6')
       const data = Array.isArray(response.data) ? response.data : []
       return data.slice(0, 6)
     },
