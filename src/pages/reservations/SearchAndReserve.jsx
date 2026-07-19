@@ -212,7 +212,7 @@ function SearchAndReserve() {
         </div>
       )}
 
-      {mutation.error && (
+      {(searchHousesMutation.error || reserveMutation.error) && (
         <div style={errorCardStyles}>
           <h2 style={{ color: '#dc2626', marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '700' }}>
             {reserveMutation.error?.status === 404
