@@ -72,6 +72,11 @@ function UserManagement() {
       queryClient.invalidateQueries(['users', search])
       setDeletingUserId(null)
     },
+    onError: (error) => {
+      console.error('Error deleting user:', error)
+      alert(`Failed to delete user: ${error.response?.data?.message || error.message}`)
+      setDeletingUserId(null)
+    },
   })
 
   const handleCreateUser = (e) => {
@@ -91,10 +96,10 @@ function UserManagement() {
     }
   }
 
-  if (role !== 'manager') {
+  if (role !== 'manager' && role !== 'sales_employee') {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <ErrorMessage message="Access denied. Manager privileges required." />
+        <ErrorMessage message="Access denied. Manager or Sales Employee privileges required." />
       </div>
     )
   }
