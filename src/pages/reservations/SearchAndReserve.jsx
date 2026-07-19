@@ -13,6 +13,9 @@ function SearchAndReserve() {
   })
   const [errors, setErrors] = useState({})
   const [customerSearch, setCustomerSearch] = useState('')
+  const [searchResults, setSearchResults] = useState(null)
+  const [selectedHouse, setSelectedHouse] = useState(null)
+  const [showResults, setShowResults] = useState(false)
   const [success, setSuccess] = useState(false)
   const [reservedHouse, setReservedHouse] = useState(null)
   const queryClient = useQueryClient()
@@ -25,15 +28,35 @@ function SearchAndReserve() {
     },
   })
 
-  const mutation = useMutation({
+  const searchHousesMutation = useMutation({
     mutationFn: async (data) => {
-      const response = await client.post('/api/reservations/search-and-reserve', data)
+      const params = {}
+      if (data.listingType) params.listingType = data.listingType
+      if (data.minPrice) params.minPrice = parseFloat(data.minPrice)
+      if (data.maxPrice) params.maxPrice = parseFloat(data.maxPrice)
+      if (data.location) params.location = data.location
+      const response = await client.get('/api/houses/search', { params })
       return response.data
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+      setSearchResults(data)
+      setShowResults(true)
+    },
+  })
+
+  const reserveMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await client.post('/api/reservations', data)
+      return response.data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['reservations'])
+      queryClient.invalidateQueries(['houses'])
       setSuccess(true)
       setReservedHouse(data.house)
+      setShowResults(false)
+      setSearchResults(null)
+      setSelectedHouse(null)
       setFormData({
         customerId: '',
         listingType: '',
@@ -57,24 +80,31 @@ function SearchAndReserve() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSearch = (e) => {
     e.preventDefault()
     setSuccess(false)
     setReservedHouse(null)
+    setShowResults(false)
+    setSearchResults(null)
 
     if (validate()) {
-      const payload = {
-        customerId: formData.customerId,
-      }
-
-      if (formData.listingType) payload.listingType = formData.listingType
-      if (formData.minPrice) payload.minPrice = parseFloat(formData.minPrice)
-      if (formData.maxPrice) payload.maxPrice = parseFloat(formData.maxPrice)
-      if (formData.location) payload.location = formData.location
-      if (formData.reservationDate) payload.reservationDate = formData.reservationDate
-
-      mutation.mutate(payload)
+      searchHousesMutation.mutate(formData)
     }
+  }
+
+  const handleReserve = (houseId) => {
+    if (!formData.customerId) {
+      setErrors({ customerId: 'Customer is required' })
+      return
+    }
+
+    const payload = {
+      customerId: formData.customerId,
+      houseId: houseId,
+      reservationDate: formData.reservationDate,
+    }
+
+    reserveMutation.mutate(payload)
   }
 
   const handleChange = (e) => {
@@ -185,18 +215,86 @@ function SearchAndReserve() {
       {mutation.error && (
         <div style={errorCardStyles}>
           <h2 style={{ color: '#dc2626', marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: '700' }}>
-            {mutation.error.status === 404
+            {reserveMutation.error?.status === 404
               ? 'No Matching House Found'
               : 'Error'}
           </h2>
           <p style={{ color: '#dc2626', fontSize: '0.95rem' }}>
-            {mutation.error.message || 'An error occurred'}
+            {reserveMutation.error?.message || searchHousesMutation.error?.message || 'An error occurred'}
           </p>
         </div>
       )}
 
+      {showResults && searchResults && (
+        <div style={cardStyles}>
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', fontWeight: '700', color: '#1e293b' }}>
+            Search Results ({searchResults.length} houses found)
+          </h2>
+          {searchResults.length === 0 ? (
+            <p style={{ color: '#64748b' }}>No houses match your search criteria.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {searchResults.map((house) => (
+                <div
+                  key={house.id}
+                  style={{
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '1rem',
+                    backgroundColor: '#f8fafc',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem', color: '#1e293b' }}>
+                      {house.address}
+                    </h3>
+                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+                      <strong>Price:</strong> ${Number(house.price).toLocaleString()}
+                    </p>
+                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+                      <strong>Type:</strong> {house.listingType}
+                    </p>
+                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                      <strong>Homeowner:</strong> {house.homeowner?.fullName}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleReserve(house.id)}
+                    disabled={reserveMutation.isPending}
+                    style={{
+                      ...buttonStyles,
+                      backgroundColor: reserveMutation.isPending ? '#94a3b8' : '#10b981',
+                      cursor: reserveMutation.isPending ? 'not-allowed' : 'pointer',
+                    }}
+                    onMouseEnter={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#059669')}
+                    onMouseLeave={(e) => !reserveMutation.isPending && (e.target.style.backgroundColor = '#10b981')}
+                  >
+                    {reserveMutation.isPending ? 'Reserving...' : 'Reserve'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <button
+            onClick={() => setShowResults(false)}
+            style={{
+              ...buttonStyles,
+              backgroundColor: '#64748b',
+              marginTop: '1rem',
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#475569'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#64748b'}
+          >
+            Back to Search
+          </button>
+        </div>
+      )}
+
       <div style={cardStyles}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSearch}>
           <div>
             <label htmlFor="customerId" style={labelStyles}>
               Customer *
@@ -305,16 +403,16 @@ function SearchAndReserve() {
 
           <button
             type="submit"
-            disabled={mutation.isPending}
+            disabled={searchHousesMutation.isPending}
             style={{
               ...buttonStyles,
-              backgroundColor: mutation.isPending ? '#94a3b8' : '#3b82f6',
-              cursor: mutation.isPending ? 'not-allowed' : 'pointer',
+              backgroundColor: searchHousesMutation.isPending ? '#94a3b8' : '#3b82f6',
+              cursor: searchHousesMutation.isPending ? 'not-allowed' : 'pointer',
             }}
-            onMouseEnter={(e) => !mutation.isPending && (e.target.style.backgroundColor = '#2563eb')}
-            onMouseLeave={(e) => !mutation.isPending && (e.target.style.backgroundColor = '#3b82f6')}
+            onMouseEnter={(e) => !searchHousesMutation.isPending && (e.target.style.backgroundColor = '#2563eb')}
+            onMouseLeave={(e) => !searchHousesMutation.isPending && (e.target.style.backgroundColor = '#3b82f6')}
           >
-            {mutation.isPending ? 'Searching...' : 'Search and Reserve'}
+            {searchHousesMutation.isPending ? 'Searching...' : 'Search Houses'}
           </button>
         </form>
       </div>
