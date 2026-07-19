@@ -11,9 +11,9 @@ function PropertyListing() {
   const { data: properties, isLoading, error } = useQuery({
     queryKey: ['properties', filter],
     queryFn: async () => {
-      let url = '/api/houses?status=available'
-      if (filter === 'sale') url += '&listingType=sale'
-      if (filter === 'rent') url += '&listingType=rent'
+      let url = '/api/houses'
+      if (filter === 'sale') url += '?listingType=sale'
+      if (filter === 'rent') url += '?listingType=rent'
       const response = await client.get(url)
       const data = Array.isArray(response.data) ? response.data : []
       return data.slice(0, 6)
